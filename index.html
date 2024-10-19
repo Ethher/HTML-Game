@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Click the Circle</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        #gameArea {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            background-color: white;
+            border: 2px solid black;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #circle {
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+        }
+
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 18px;
+        }
+
+        #timer {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameArea">
+        <div id="circle"></div>
+        <div id="score">Score: 0</div>
+        <div id="timer">Time: 30</div>
+    </div>
+
+    <script>
+        const circle = document.getElementById('circle');
+        const scoreDisplay = document.getElementById('score');
+        const timerDisplay = document.getElementById('timer');
+        const gameArea = document.getElementById('gameArea');
+        let score = 0;
+        let timeLeft = 30;
+        let gameInterval;
+
+        // Function to check if two elements overlap
+        function isOverlapping(el1, el2) {
+            const rect1 = el1.getBoundingClientRect();
+            const rect2 = el2.getBoundingClientRect();
+            return !(rect1.right < rect2.left || 
+                     rect1.left > rect2.right || 
+                     rect1.bottom < rect2.top || 
+                     rect1.top > rect2.bottom);
+        }
+
+        // Function to move the circle to a random position without overlapping score or timer
+        function moveCircle() {
+            const maxX = gameArea.clientWidth - circle.clientWidth;
+            const maxY = gameArea.clientHeight - circle.clientHeight;
+            let randomX, randomY;
+
+            do {
+                randomX = Math.floor(Math.random() * maxX);
+                randomY = Math.floor(Math.random() * maxY);
+                circle.style.left = `${randomX}px`;
+                circle.style.top = `${randomY}px`;
+            } while (isOverlapping(circle, scoreDisplay) || isOverlapping(circle, timerDisplay));
+        }
+
+        // Event listener for circle clicks
+        circle.addEventListener('click', () => {
+            score++;
+            scoreDisplay.textContent = `Score: ${score}`;
+            moveCircle();
+        });
+
+        // Function to start the game
+        function startGame() {
+            moveCircle();
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = `Time: ${timeLeft}`;
+                if (timeLeft <= 0) {
+                    clearInterval(gameInterval);
+                    alert(`Time's up! Your score is: ${score}`);
+                }
+            }, 1000);
+        }
+
+        // Start the game when the page loads
+        window.onload = startGame;
+    </script>
+</body>
+</html>
